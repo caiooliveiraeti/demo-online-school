@@ -1,0 +1,9 @@
+services:
+  postgres:
+    image: 'postgres:latest'
+    environment:
+      - 'POSTGRES_DB=onlineschool'
+      - 'POSTGRES_PASSWORD=onlineschool'
+      - 'POSTGRES_USER=onlineschool'
+    ports:
+      - '5432:5432'
