@@ -3,6 +3,7 @@ package br.eti.caiooliveira.onlineschool.controller;
 import br.eti.caiooliveira.onlineschool.model.Student;
 import br.eti.caiooliveira.onlineschool.repository.StudentRepository;
 import io.restassured.RestAssured;
+import io.restassured.filter.session.SessionFilter;
 import io.restassured.http.ContentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,8 @@ class StudentIntegrationTest {
     @LocalServerPort
     private int port;
 
+    private SessionFilter sessionFilter;
+
     @Autowired
     private StudentRepository studentRepository;
 
@@ -39,6 +42,18 @@ class StudentIntegrationTest {
     public void setUp() {
         RestAssured.port = port;
         studentRepository.deleteAll(); // Clear any existing data before each test
+        login();
+    }
+
+    private void login() {
+        sessionFilter = new SessionFilter();
+        RestAssured.given()
+                .filter(sessionFilter)
+                .formParam("username", "caio")
+                .formParam("password", "123456")
+                .when()
+                .post("/login").then()
+                .statusCode(302);
     }
 
     @Test
@@ -47,6 +62,7 @@ class StudentIntegrationTest {
         String studentJson = "{ \"name\": \"Caio Oliveira\" }";
 
         given()
+                .filter(sessionFilter)
                 .contentType(ContentType.JSON)
                 .body(studentJson)
                 .when()
@@ -61,7 +77,9 @@ class StudentIntegrationTest {
     public void testGetAllStudents() {
         studentRepository.save(Student.of("Caio Oliveira"));
 
-        RestAssured.when()
+        RestAssured.given()
+                .filter(sessionFilter)
+                .when()
                 .get("/students")
                 .then()
                 .statusCode(200)
@@ -74,6 +92,7 @@ class StudentIntegrationTest {
         Student savedStudent = studentRepository.save(Student.of("Caio Oliveira"));
 
         given()
+                .filter(sessionFilter)
                 .pathParam("id", savedStudent.id())
                 .when()
                 .get("/students/{id}")
@@ -90,6 +109,7 @@ class StudentIntegrationTest {
         String updatedStudentJson = "{ \"name\": \"Caio Oliveira\" }";
 
         given()
+                .filter(sessionFilter)
                 .contentType(ContentType.JSON)
                 .body(updatedStudentJson)
                 .pathParam("id", savedStudent.id())
@@ -106,6 +126,7 @@ class StudentIntegrationTest {
         Student savedStudent = studentRepository.save(Student.of("Caio Oliveira"));
 
         given()
+                .filter(sessionFilter)
                 .pathParam("id", savedStudent.id())
                 .when()
                 .delete("/students/{id}")
