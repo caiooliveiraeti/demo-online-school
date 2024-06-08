@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.2.5</version>
+		<version>3.3.0</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>br.eti.caiooliveira</groupId>
@@ -75,7 +75,26 @@
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
-			</plugin>
+				<configuration>
+					<image>
+						<env>
+							<BP_JVM_VERSION>21</BP_JVM_VERSION>
+							<BP_SPRING_CLOUD_BINDINGS_DISABLED>true</BP_SPRING_CLOUD_BINDINGS_DISABLED>
+							<BP_SPRING_AOT_ENABLED>true</BP_SPRING_AOT_ENABLED>
+							<BP_JVM_CDS_ENABLED>true</BP_JVM_CDS_ENABLED>
+							<CDS_TRAINING_JAVA_TOOL_OPTIONS>-Dspring.data.jdbc.dialect=postgresql -Dspring.sql.init.mode=never -Dspring.datasource.hikari.allow-pool-suspension=true</CDS_TRAINING_JAVA_TOOL_OPTIONS>
+						</env>
+					</image>
+				</configuration>				
+				<executions>
+					<execution>
+						<id>process-aot</id>
+						<goals>
+							<goal>process-aot</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>		
 		</plugins>
 	</build>
 
